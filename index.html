@@ -1,0 +1,1041 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LinkShort - اختصار الروابط</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            direction: rtl;
+            padding: 20px;
+        }
+        
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+            backdrop-filter: blur(10px);
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+        
+        .input-group {
+            margin-bottom: 20px;
+        }
+        
+        input[type="url"] {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            direction: ltr;
+            text-align: left;
+        }
+        
+        input[type="url"]:focus {
+            outline: none;
+            border-color: #667eea;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+        
+        .btn {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        }
+        
+        .btn:active {
+            transform: translateY(0);
+        }
+        
+        .result {
+            display: none;
+            background: #f8f9ff;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+            border: 1px solid #e0e6ff;
+        }
+        
+        .short-link {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            word-break: break-all;
+            direction: ltr;
+            text-align: left;
+            font-family: monospace;
+            font-size: 14px;
+            color: #0066cc;
+            cursor: pointer;
+        }
+        
+        .copy-btn,
+        .reset-btn {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            margin: 5px;
+            transition: all 0.3s ease;
+        }
+        
+        .copy-btn:hover,
+        .reset-btn:hover {
+            background: #218838;
+            transform: translateY(-1px);
+        }
+        
+        .reset-btn {
+            background: #6c757d;
+        }
+        
+        .reset-btn:hover {
+            background: #545b62;
+        }
+        
+        .redirect-page {
+            display: none;
+        }
+        
+        .status-message {
+            font-size: 1.2em;
+            margin-bottom: 20px;
+            color: #333;
+        }
+        
+        .adblock-warning {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            display: none;
+            box-shadow: 0 10px 30px rgba(255, 107, 107, 0.3);
+        }
+        
+        .adblock-warning h2 {
+            margin-bottom: 15px;
+            font-size: 1.5em;
+        }
+        
+        .adblock-warning p {
+            margin-bottom: 10px;
+            line-height: 1.6;
+        }
+        
+        .countdown {
+            font-size: 3em;
+            font-weight: bold;
+            color: #667eea;
+            margin: 30px 0;
+            text-shadow: 0 2px 10px rgba(102, 126, 234, 0.3);
+        }
+        
+        .countdown-text {
+            font-size: 1.1em;
+            color: #666;
+            margin-bottom: 30px;
+        }
+        
+        .access-btn {
+            background: linear-gradient(45deg, #28a745, #20c997);
+            color: white;
+            border: none;
+            padding: 20px 40px;
+            border-radius: 15px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            display: none;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(40, 167, 69, 0.3);
+        }
+        
+        .access-btn:hover {
+            background: linear-gradient(45deg, #218838, #17a2b8);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(40, 167, 69, 0.4);
+        }
+        
+        .ad-placeholder {
+            width: 100%;
+            max-width: 300px;
+            height: 250px;
+            background: linear-gradient(45deg, #f8f9fa, #e9ecef);
+            border: 2px dashed #dee2e6;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin: 20px auto;
+            border-radius: 10px;
+            color: #6c757d;
+            font-size: 14px;
+        }
+        
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-left: 10px;
+        }
+        
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+        
+        .error-message {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            display: none;
+        }
+        
+        .success-message {
+            background: linear-gradient(45deg, #28a745, #20c997);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 10px 0;
+            display: none;
+        }
+        
+        .skip-adblock {
+            background: linear-gradient(45deg, #17a2b8, #6f42c1);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 10px;
+            display: none;
+            /* مخفي بشكل افتراضي للنظام الصارم */
+        }
+        
+        .skip-adblock:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(23, 162, 184, 0.3);
+        }
+        
+        .detection-details {
+            background: rgba(0, 0, 0, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+            text-align: right;
+            font-size: 14px;
+            display: none;
+        }
+        
+        .detection-details h4 {
+            margin-bottom: 10px;
+            color: #fff;
+        }
+        
+        .test-result {
+            padding: 5px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .test-result:last-child {
+            border-bottom: none;
+        }
+        
+        .blocked {
+            color: #ff6b6b;
+        }
+        
+        .allowed {
+            color: #28a745;
+        }
+        
+        @media (max-width:480px) {
+            .container {
+                padding: 20px;
+                margin: 10px;
+            }
+            h1 {
+                font-size: 2em;
+            }
+            .countdown {
+                font-size: 2em;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- الصفحة الرئيسية -->
+    <div class="container" id="mainPage">
+        <h1>🔗 LinkShort</h1>
+        <p class="subtitle">اختصر روابطك بسهولة وأمان</p>
+
+        <div class="input-group">
+            <input type="url" id="originalUrl" placeholder="أدخل الرابط هنا... (مثال: https://google.com)" required>
+        </div>
+
+        <button class="btn" id="shortenBtn" onclick="shortenLink()">✨ إنشاء رابط مختصر</button>
+
+        <div class="success-message" id="successMessage">✅ تم إنشاء الرابط بنجاح!</div>
+        <div class="error-message" id="errorMessage">❌ يرجى إدخال رابط صحيح</div>
+
+        <div class="result" id="result">
+            <h3>🎉 رابطك المختصر جاهز!</h3>
+            <div class="short-link" id="shortLinkDisplay" onclick="copyLink()"></div>
+            <button class="copy-btn" onclick="copyLink()">📋 نسخ الرابط</button>
+            <button class="reset-btn" onclick="resetForm()">🔄 إنشاء رابط جديد</button>
+        </div>
+    </div>
+
+    <!-- صفحة الرابط المختصر -->
+    <div class="container redirect-page" id="redirectPage">
+        <h1 id="pageTitle">🔄 جاري التحضير...</h1>
+        <div class="status-message" id="statusMessage">يرجى الانتظار قليلاً</div>
+
+        <div class="adblock-warning" id="adblockWarning">
+            <h2>🚫 تم اكتشاف مانع الإعلانات!</h2>
+            <p>⚠️ للوصول للرابط، يجب إزالة مانع الإعلانات من هذا الموقع</p>
+            <p>🔧 <strong>خطوات الإصلاح:</strong></p>
+            <p>📱 <strong>Chrome/Edge:</strong> اضغط على أيقونة الدرع → إزالة الحماية لهذا الموقع</p>
+            <p>🦊 <strong>Firefox:</strong> اضغط على أيقونة uBlock Origin → إيقاف لهذا الموقع</p>
+            <p>🔄 ثم قم بإعادة تحميل الصفحة</p>
+
+            <div class="detection-details" id="detectionDetails">
+                <h4>📊 تفاصيل الفحص:</h4>
+                <div id="testResults"></div>
+            </div>
+
+            <button class="skip-adblock" onclick="showDetectionDetails()">🔍 عرض تفاصيل الفحص</button>
+            <button class="skip-adblock" onclick="forceSkipAdblock()" style="display: none;" id="forceSkipBtn">⚠️ تجاهل والمتابعة (قد لا يعمل)</button>
+        </div>
+
+        <div class="ad-placeholder" id="adSpace">
+            <div>📢</div>
+            <span>مساحة إعلانية</span>
+            <small>الإعلانات تساعدنا في تقديم الخدمة مجاناً</small>
+        </div>
+
+        <div class="countdown" id="countdown">5</div>
+        <div class="countdown-text">ثواني متبقية قبل توجيهك للرابط...</div>
+
+        <button class="access-btn" id="accessBtn" onclick="redirectToOriginal()">🚀 الانتقال إلى الرابط الأصلي</button>
+    </div>
+
+    <script>
+        let targetUrl = '';
+        let countdownInterval;
+
+        function isValidUrl(string) {
+            try {
+                const url = new URL(string);
+                return url.protocol === 'http:' || url.protocol === 'https:';
+            } catch (_) {
+                return false;
+            }
+        }
+
+        function showMessage(messageId, duration = 3000) {
+            const element = document.getElementById(messageId);
+            element.style.display = 'block';
+            setTimeout(() => {
+                element.style.display = 'none';
+            }, duration);
+        }
+
+        function generateShortId() {
+            return Math.random().toString(36).substring(2, 10) + Date.now().toString(36);
+        }
+
+        function shortenLink() {
+            const urlInput = document.getElementById('originalUrl');
+            let url = urlInput.value.trim();
+            if (!url) {
+                showMessage('errorMessage');
+                urlInput.focus();
+                return;
+            }
+            if (!url.startsWith('http://') && !url.startsWith('https://')) url = 'https://' + url;
+            if (!isValidUrl(url)) {
+                showMessage('errorMessage');
+                urlInput.focus();
+                return;
+            }
+
+            const btn = document.getElementById('shortenBtn');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '⏳ جاري الإنشاء... <div class="loading"></div>';
+            btn.disabled = true;
+
+            setTimeout(() => {
+                const shortId = generateShortId();
+                const baseUrl = window.location.origin + window.location.pathname;
+                const shortUrl = baseUrl + '?link=' + btoa(encodeURIComponent(url)) + '&id=' + shortId;
+                document.getElementById('shortLinkDisplay').textContent = shortUrl;
+                document.getElementById('result').style.display = 'block';
+                showMessage('successMessage');
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+                document.getElementById('result').scrollIntoView({
+                    behavior: 'smooth'
+                });
+            }, 1500);
+        }
+
+        async function copyLink() {
+            const shortLink = document.getElementById('shortLinkDisplay').textContent;
+            try {
+                await navigator.clipboard.writeText(shortLink);
+                const btn = event.target;
+                const originalText = btn.textContent;
+                btn.textContent = '✅ تم النسخ!';
+                btn.style.background = '#28a745';
+                setTimeout(() => {
+                    btn.textContent = originalText;
+                    btn.style.background = '';
+                }, 2000);
+            } catch {
+                const textArea = document.createElement('textarea');
+                textArea.value = shortLink;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                alert('تم نسخ الرابط! ✅');
+            }
+        }
+
+        function resetForm() {
+            document.getElementById('originalUrl').value = '';
+            document.getElementById('result').style.display = 'none';
+            document.getElementById('originalUrl').focus();
+        }
+
+        // 🔒 نظام كشف صارم ومتقدم لمانع الإعلانات + كشف خاص لـ uBlock Origin
+        function detectAdBlock() {
+            return new Promise((resolve) => {
+                let detectionResults = [];
+                let completedTests = 0;
+                const totalTests = 12; // 12 اختبار مختلف بما في ذلك اختبارات خاصة لـ uBlock
+
+                function completeTest(testName, isBlocked) {
+                    detectionResults.push({
+                        test: testName,
+                        blocked: isBlocked
+                    });
+                    completedTests++;
+
+                    if (completedTests >= totalTests) {
+                        // للنظام الصارم: إذا فشل 3 اختبارات أو أكثر، فهناك مانع إعلانات
+                        // أو إذا تم كشف uBlock Origin أو uBlock بشكل مباشر
+                        const blockedTests = detectionResults.filter(r => r.blocked).length;
+                        const hasUBlock = detectionResults.some(r => r.test.includes('uBlock') && r.blocked);
+
+                        console.log('🔍 نتائج فحص مانع الإعلانات:', detectionResults);
+                        console.log(`📊 اختبارات فاشلة: ${blockedTests}/${totalTests}`);
+                        console.log(`🛡️ uBlock مكتشف: ${hasUBlock}`);
+
+                        resolve(blockedTests >= 3 || hasUBlock);
+                    }
+                }
+
+                // 1️⃣ اختبار العناصر بأسماء إعلانية
+                try {
+                    const adElements = [{
+                        class: 'adsbox',
+                        id: 'ads'
+                    }, {
+                        class: 'ad-banner',
+                        id: 'advertisement'
+                    }, {
+                        class: 'google-ads',
+                        id: 'google-ad'
+                    }, {
+                        class: 'pub_300x250',
+                        id: 'div-gpt-ad'
+                    }];
+
+                    let blockedCount = 0;
+                    adElements.forEach((element, index) => {
+                        const testDiv = document.createElement('div');
+                        testDiv.className = element.class;
+                        testDiv.id = element.id;
+                        testDiv.innerHTML = '<span>Ad</span>';
+                        testDiv.style.cssText = 'position:absolute;left:-999px;width:1px;height:1px;';
+
+                        document.body.appendChild(testDiv);
+
+                        setTimeout(() => {
+                            const isBlocked = testDiv.offsetHeight === 0 ||
+                                testDiv.offsetWidth === 0 ||
+                                testDiv.style.display === 'none' ||
+                                testDiv.style.visibility === 'hidden' ||
+                                window.getComputedStyle(testDiv).display === 'none';
+
+                            if (isBlocked) blockedCount++;
+
+                            try {
+                                document.body.removeChild(testDiv);
+                            } catch (e) {}
+
+                            if (index === adElements.length - 1) {
+                                completeTest('DOM Elements', blockedCount > 0);
+                            }
+                        }, 50 + (index * 10));
+                    });
+                } catch (e) {
+                    completeTest('DOM Elements', false);
+                }
+
+                // 2️⃣ اختبار تحميل سكريبت Google AdSense
+                try {
+                    const adsenseScript = document.createElement('script');
+                    adsenseScript.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js';
+                    adsenseScript.async = true;
+
+                    let scriptLoaded = false;
+                    adsenseScript.onload = () => {
+                        scriptLoaded = true;
+                        completeTest('Google AdSense', false);
+                    };
+
+                    adsenseScript.onerror = () => {
+                        completeTest('Google AdSense', true);
+                    };
+
+                    document.head.appendChild(adsenseScript);
+
+                    setTimeout(() => {
+                        if (!scriptLoaded) {
+                            completeTest('Google AdSense', true);
+                        }
+                    }, 1000);
+                } catch (e) {
+                    completeTest('Google AdSense', true);
+                }
+
+                // 3️⃣ اختبار تحميل سكريبت Google Analytics
+                try {
+                    const gaScript = document.createElement('script');
+                    gaScript.src = 'https://www.google-analytics.com/analytics.js';
+
+                    let gaLoaded = false;
+                    gaScript.onload = () => {
+                        gaLoaded = true;
+                        completeTest('Google Analytics', false);
+                    };
+
+                    gaScript.onerror = () => {
+                        completeTest('Google Analytics', true);
+                    };
+
+                    document.head.appendChild(gaScript);
+
+                    setTimeout(() => {
+                        if (!gaLoaded) {
+                            completeTest('Google Analytics', true);
+                        }
+                    }, 1000);
+                } catch (e) {
+                    completeTest('Google Analytics', true);
+                }
+
+                // 4️⃣ اختبار تحميل صورة إعلانية
+                try {
+                    const adImage = document.createElement('img');
+                    adImage.src = 'https://googleads.g.doubleclick.net/pagead/ads?client=ca-google&format=jpg&w=1&h=1';
+                    adImage.style.display = 'none';
+
+                    let imageLoaded = false;
+                    adImage.onload = () => {
+                        imageLoaded = true;
+                        completeTest('Ad Image', false);
+                    };
+
+                    adImage.onerror = () => {
+                        completeTest('Ad Image', true);
+                    };
+
+                    document.body.appendChild(adImage);
+
+                    setTimeout(() => {
+                        if (!imageLoaded) {
+                            completeTest('Ad Image', true);
+                        }
+                        try {
+                            document.body.removeChild(adImage);
+                        } catch (e) {}
+                    }, 800);
+                } catch (e) {
+                    completeTest('Ad Image', true);
+                }
+
+                // 5️⃣ اختبار fetch لدومين إعلاني
+                try {
+                    fetch('https://googleads.g.doubleclick.net/favicon.ico', {
+                        method: 'HEAD',
+                        mode: 'no-cors',
+                        cache: 'no-cache'
+                    }).then(() => {
+                        completeTest('Fetch Test', false);
+                    }).catch(() => {
+                        completeTest('Fetch Test', true);
+                    });
+                } catch (e) {
+                    completeTest('Fetch Test', true);
+                }
+
+                // 6️⃣ فحص وجود متغيرات AdBlock المعروفة
+                setTimeout(() => {
+                    const adblockVariables = [
+                        'window.uBlock',
+                        'window.adblockDetector',
+                        'window.AdBlock',
+                        'window.adBlock',
+                        'document.getElementsByClassName("adsbygoogle").length === 0'
+                    ];
+
+                    let suspiciousCount = 0;
+                    if (typeof window.uBlock !== 'undefined') suspiciousCount++;
+                    if (typeof window.adblockDetector !== 'undefined') suspiciousCount++;
+                    if (typeof window.AdBlock !== 'undefined') suspiciousCount++;
+                    if (typeof window.adBlock !== 'undefined') suspiciousCount++;
+
+                    completeTest('AdBlock Variables', suspiciousCount > 0);
+                }, 200);
+
+                // 7️⃣ اختبار CSS للعناصر الإعلانية
+                setTimeout(() => {
+                    try {
+                        const style = document.createElement('style');
+                        style.innerHTML = '.adblock-test { width: 1px; height: 1px; }';
+                        document.head.appendChild(style);
+
+                        const testDiv = document.createElement('div');
+                        testDiv.className = 'advertisement adblock-test';
+                        testDiv.style.position = 'absolute';
+                        testDiv.style.left = '-999px';
+                        document.body.appendChild(testDiv);
+
+                        setTimeout(() => {
+                            const computedStyle = window.getComputedStyle(testDiv);
+                            const isBlocked = computedStyle.display === 'none' ||
+                                testDiv.offsetHeight === 0 ||
+                                computedStyle.visibility === 'hidden';
+
+                            completeTest('CSS Test', isBlocked);
+
+                            try {
+                                document.body.removeChild(testDiv);
+                                document.head.removeChild(style);
+                            } catch (e) {}
+                        }, 100);
+                    } catch (e) {
+                        completeTest('CSS Test', false);
+                    }
+                }, 300);
+
+                // 8️⃣ اختبار iframe إعلاني
+                setTimeout(() => {
+                    try {
+                        const adFrame = document.createElement('iframe');
+                        adFrame.src = 'about:blank';
+                        adFrame.className = 'google-ads-iframe';
+                        adFrame.style.cssText = 'position:absolute;left:-999px;width:1px;height:1px;';
+
+                        document.body.appendChild(adFrame);
+
+                        setTimeout(() => {
+                            const isBlocked = adFrame.offsetHeight === 0 ||
+                                adFrame.offsetWidth === 0 ||
+                                window.getComputedStyle(adFrame).display === 'none';
+
+                            completeTest('iFrame Test', isBlocked);
+
+                            try {
+                                document.body.removeChild(adFrame);
+                            } catch (e) {}
+                        }, 100);
+                    } catch (e) {
+                        completeTest('iFrame Test', false);
+                    }
+                }, 400);
+
+                // 9️⃣ كشف uBlock Origin - الطريقة الأولى
+                setTimeout(() => {
+                    try {
+                        // فحص Extension Context Script Injection
+                        const uBlockTest = document.createElement('div');
+                        uBlockTest.innerHTML = '<div class="ads advertisement adsbox doubleclick ad-placement carbon-ads" style="width:1px!important;height:1px!important;position:absolute!important;left:-5000px!important;"><br></div>';
+                        document.body.appendChild(uBlockTest);
+
+                        setTimeout(() => {
+                            const adElement = uBlockTest.querySelector('.ads');
+                            const isBlocked = !adElement ||
+                                adElement.offsetHeight === 0 ||
+                                adElement.offsetWidth === 0 ||
+                                window.getComputedStyle(adElement).display === 'none' ||
+                                window.getComputedStyle(adElement).visibility === 'hidden';
+
+                            completeTest('uBlock Origin Test 1', isBlocked);
+                            try {
+                                document.body.removeChild(uBlockTest);
+                            } catch (e) {}
+                        }, 100);
+                    } catch (e) {
+                        completeTest('uBlock Origin Test 1', false);
+                    }
+                }, 500);
+
+                // 🔟 كشف uBlock Origin - الطريقة الثانية (فحص Extension APIs)
+                setTimeout(() => {
+                    let uBlockDetected = false;
+
+                    try {
+                        // فحص وجود uBlock في Extension Context
+                        if (window.chrome && window.chrome.runtime) {
+                            // محاولة إرسال رسالة لـ uBlock Extension
+                            const extensionIds = [
+                                'cjpalhdlnbpafiamejdnhcphjbkeiagm', // uBlock Origin Chrome
+                                'dbekadjmhacbebbdgkgmjbkdgbcicdbe', // uBlock Origin Chrome (beta)
+                            ];
+
+                            extensionIds.forEach(id => {
+                                try {
+                                    chrome.runtime.sendMessage(id, {}, () => {
+                                        if (!chrome.runtime.lastError) {
+                                            uBlockDetected = true;
+                                        }
+                                    });
+                                } catch (e) {}
+                            });
+                        }
+
+                        // فحص متغيرات uBlock في النافذة
+                        const uBlockVariables = [
+                            'vAPI', 'uBO_listeners', 'ublock_origin',
+                            'uBlockOrigin', 'ubo', 'ubOrigen'
+                        ];
+
+                        for (let variable of uBlockVariables) {
+                            if (window[variable] || document[variable]) {
+                                uBlockDetected = true;
+                                break;
+                            }
+                        }
+
+                        // فحص DocumentElement attributes المضافة من uBlock
+                        if (document.documentElement.hasAttribute('data-ublock') ||
+                            document.documentElement.hasAttribute('data-ubo')) {
+                            uBlockDetected = true;
+                        }
+
+                        completeTest('uBlock Origin Test 2', uBlockDetected);
+                    } catch (e) {
+                        completeTest('uBlock Origin Test 2', false);
+                    }
+                }, 600);
+
+                // 1️⃣1️⃣ كشف uBlock Origin - اختبار CSS المتقدم
+                setTimeout(() => {
+                    try {
+                        const style = document.createElement('style');
+                        style.innerHTML = `
+                            .ublock-test-ads { 
+                                width: 1px !important; 
+                                height: 1px !important; 
+                                background: url('data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==') !important;
+                            }
+                        `;
+                        document.head.appendChild(style);
+
+                        const testElements = [
+                            'google_ads_iframe_',
+                            'google-ads',
+                            'googlesyndication',
+                            'adsystem',
+                            'ads-banner'
+                        ];
+
+                        let blockedCount = 0;
+                        testElements.forEach(className => {
+                            const testDiv = document.createElement('div');
+                            testDiv.className = className + ' ublock-test-ads';
+                            testDiv.style.cssText = 'position:absolute;left:-999px;width:1px;height:1px;';
+                            document.body.appendChild(testDiv);
+
+                            setTimeout(() => {
+                                if (testDiv.offsetHeight === 0 ||
+                                    window.getComputedStyle(testDiv).display === 'none') {
+                                    blockedCount++;
+                                }
+                                try {
+                                    document.body.removeChild(testDiv);
+                                } catch (e) {}
+                            }, 50);
+                        });
+
+                        setTimeout(() => {
+                            completeTest('uBlock CSS Test', blockedCount > 2);
+                            try {
+                                document.head.removeChild(style);
+                            } catch (e) {}
+                        }, 200);
+
+                    } catch (e) {
+                        completeTest('uBlock CSS Test', false);
+                    }
+                }, 700);
+
+                // 1️⃣2️⃣ كشف uBlock Origin - اختبار Network Request Blocking
+                setTimeout(() => {
+                    try {
+                        // إنشاء طلبات لمصادر معروفة بأنها محجوبة من uBlock
+                        const testUrls = [
+                            'https://www.google-analytics.com/collect?v=1&tid=UA-test',
+                            'https://pagead2.googlesyndication.com/pagead/gen_204',
+                            'https://doubleclick.net/instream/ad_status.js'
+                        ];
+
+                        let blockedRequests = 0;
+                        let completedRequests = 0;
+
+                        testUrls.forEach(url => {
+                            fetch(url, {
+                                method: 'HEAD',
+                                mode: 'no-cors',
+                                cache: 'no-cache'
+                            }).then(() => {
+                                completedRequests++;
+                                if (completedRequests === testUrls.length) {
+                                    completeTest('uBlock Network Test', blockedRequests > 0);
+                                }
+                            }).catch(() => {
+                                blockedRequests++;
+                                completedRequests++;
+                                if (completedRequests === testUrls.length) {
+                                    completeTest('uBlock Network Test', blockedRequests > 0);
+                                }
+                            });
+                        });
+
+                        // fallback timeout
+                        setTimeout(() => {
+                            if (completedRequests < testUrls.length) {
+                                completeTest('uBlock Network Test', true);
+                            }
+                        }, 1000);
+
+                    } catch (e) {
+                        completeTest('uBlock Network Test', false);
+                    }
+                }, 800);
+
+                // أمان إضافي - إذا لم تكمل الاختبارات في 5 ثوانِ
+                setTimeout(() => {
+                    if (completedTests < totalTests) {
+                        console.warn('⚠️ انتهت مهلة اختبارات مانع الإعلانات');
+                        resolve(true); // افتراض وجود مانع إعلانات للأمان
+                    }
+                }, 5000);
+            });
+        }
+
+        let detectionResults = [];
+
+        function showDetectionDetails() {
+            const detailsDiv = document.getElementById('detectionDetails');
+            const resultsDiv = document.getElementById('testResults');
+            const forceBtn = document.getElementById('forceSkipBtn');
+
+            let resultsHtml = '';
+            detectionResults.forEach(result => {
+                const status = result.blocked ? 'محجوب ❌' : 'مسموح ✅';
+                const className = result.blocked ? 'blocked' : 'allowed';
+                resultsHtml += `<div class="test-result"><strong>${result.test}:</strong> <span class="${className}">${status}</span></div>`;
+            });
+
+            resultsDiv.innerHTML = resultsHtml;
+            detailsDiv.style.display = 'block';
+            forceBtn.style.display = 'inline-block';
+        }
+
+        function forceSkipAdblock() {
+            // إعطاء تحذير قوي
+            const userConfirmed = confirm(
+                '⚠️ تحذير: قد لا يعمل الرابط بشكل صحيح مع مانع الإعلانات المُفعل.\n\n' +
+                '🔧 للحصول على أفضل تجربة، يُنصح بإزالة مانع الإعلانات أولاً.\n\n' +
+                'هل تريد المتابعة على مسؤوليتك؟'
+            );
+
+            if (userConfirmed) {
+                document.getElementById('adblockWarning').style.display = 'none';
+                startCountdown();
+
+                // إظهار رسالة تحذيرية إضافية
+                const statusMessage = document.getElementById('statusMessage');
+                statusMessage.innerHTML = '⚠️ تم تجاهل فحص مانع الإعلانات - قد تواجه مشاكل في التحميل';
+                statusMessage.style.color = '#ff6b6b';
+            }
+        }
+
+        function startCountdown() {
+            let count = 5;
+            const countdownEl = document.getElementById('countdown');
+            const accessBtn = document.getElementById('accessBtn');
+            const statusMessage = document.getElementById('statusMessage');
+
+            countdownEl.style.display = 'block';
+            document.querySelector('.countdown-text').style.display = 'block';
+            statusMessage.textContent = 'تم التحقق بنجاح! جاري التوجيه...';
+
+            countdownInterval = setInterval(() => {
+                count--;
+                countdownEl.textContent = count;
+                if (count <= 0) {
+                    clearInterval(countdownInterval);
+                    countdownEl.style.display = 'none';
+                    document.querySelector('.countdown-text').style.display = 'none';
+                    accessBtn.style.display = 'inline-block';
+                    accessBtn.focus();
+                    setTimeout(redirectToOriginal, 2000);
+                }
+            }, 1000);
+        }
+
+        function redirectToOriginal() {
+            if (targetUrl) {
+                document.getElementById('pageTitle').textContent = '🚀 جاري التوجيه...';
+                document.getElementById('statusMessage').textContent = 'سيتم توجيهك خلال ثانية واحدة...';
+                document.getElementById('accessBtn').style.display = 'none';
+                setTimeout(() => {
+                    window.location.href = targetUrl;
+                }, 1000);
+            } else {
+                alert('❌ حدث خطأ! الرابط غير صالح.');
+                window.location.href = window.location.origin + window.location.pathname;
+            }
+        }
+
+        window.addEventListener('load', async function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const encodedLink = urlParams.get('link');
+
+            if (encodedLink) {
+                document.getElementById('mainPage').style.display = 'none';
+                document.getElementById('redirectPage').style.display = 'block';
+
+                try {
+                    targetUrl = decodeURIComponent(atob(encodedLink));
+                    if (!isValidUrl(targetUrl)) throw new Error('Invalid URL');
+
+                    // فحص صارم ومتقدم لمانع الإعلانات
+                    const adBlockDetected = await detectAdBlock();
+
+                    if (adBlockDetected) {
+                        document.getElementById('pageTitle').textContent = '🚫 مانع الإعلانات مُفعل';
+                        document.getElementById('statusMessage').innerHTML =
+                            '<strong>يجب إزالة مانع الإعلانات للمتابعة</strong><br>' +
+                            'تم اكتشاف برنامج حجب الإعلانات على متصفحك';
+                        document.getElementById('adblockWarning').style.display = 'block';
+                        document.getElementById('countdown').style.display = 'none';
+                        document.querySelector('.countdown-text').style.display = 'none';
+                        document.getElementById('adSpace').style.display = 'none';
+
+                        // حفظ نتائج الفحص لعرضها لاحقاً
+                        window.detectionResults = detectionResults;
+                    } else {
+                        startCountdown();
+                    }
+                } catch {
+                    document.getElementById('pageTitle').textContent = '❌ رابط غير صالح';
+                    document.getElementById('statusMessage').innerHTML =
+                        'الرابط تالف أو منتهي الصلاحية<br><a href="' +
+                        window.location.origin + window.location.pathname +
+                        '" style="color: #667eea;">العودة للصفحة الرئيسية</a>';
+                    document.getElementById('countdown').style.display = 'none';
+                    document.querySelector('.countdown-text').style.display = 'none';
+                    document.getElementById('adSpace').style.display = 'none';
+                }
+            } else {
+                document.getElementById('originalUrl').focus();
+            }
+        });
+
+        document.getElementById('originalUrl').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') shortenLink();
+        });
+
+        document.addEventListener('submit', function(e) {
+            e.preventDefault();
+        });
+    </script>
+</body>
+
+</html>
